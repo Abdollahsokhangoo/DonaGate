@@ -1,22 +1,31 @@
-# Donagate v0.1.0
+# Donagate v0.2.0
 
-Deno-native foundation for the Donagate project.
+Deno-native control-panel foundation inspired by the functional goals of BPB-Worker-Panel, implemented independently rather than copying its Cloudflare Worker runtime.
 
-## Run locally
+## Included
+- Deno.serve HTTP server
+- Password login + cookie session
+- MemoryStore and optional Deno KV storage
+- Config management for host/port/protocol/UUID/password
+- Xray, Sing-box and Clash/Mihomo-style subscription generation
+- Base64 URI subscription
+- Basic panel UI
+- Health endpoint
+- Tests
+
+## Local run
 
 ```bash
+deno task check
+deno task test
 deno task dev
 ```
 
-Open `/` or `/panel`.
+Open `http://localhost:8000/login`.
 
-Health endpoint: `GET /api/health`
+Default panel password: `change-me`.
 
-## Environment
+For Deno KV locally/deployed, set `DONAGATE_USE_KV=true` and run with the required KV permission/flag for your installed Deno version. Deno Deploy's current platform supports Deno KV as a database option and applications access it through `Deno.openKv()`. See Deno's current deployment documentation.
 
-- `DONAGATE_HOST` (default `0.0.0.0`)
-- `DONAGATE_PORT` (default `8000`)
-- `DONAGATE_ADMIN_PATH` (default `/admin`)
-- `DONAGATE_SESSION_SECRET` (development placeholder)
-
-The architecture intentionally avoids Cloudflare Workers-specific APIs.
+## Important
+This is the v0.2 foundation. WebSocket proxying, Warp, Fragment, Chain Proxy, Telegram integration and advanced routing are intentionally not included yet. They should be added only after the configuration/auth/storage core is stable.

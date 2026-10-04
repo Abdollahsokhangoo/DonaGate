@@ -1,9 +1,12 @@
-import { getConfig } from "./config.ts";
-import { router } from "./router.ts";
+import { route } from "./router.ts";
+import { MemoryStore, KvStore } from "./services/storage.ts";
+import { withCors } from "./middleware/cors.ts";
 
-const config = getConfig();
-Deno.serve({ hostname: config.host, port: config.port }, async (request) => {
-  try { return await router(request); }
-  catch (error) { console.error(error); return new Response(JSON.stringify({ error: "Internal Server Error" }), { status: 500, headers: { "content-type": "application/json" } }); }
+const store = Deno.env.get("DONAGATE_USE_KV") === "true" ? new KvStore(await Deno.openKv()) : new MemoryStore();
+const port = Number(Deno.env.get("PORT") ?? 8000);
+
+console.log(`Donagate 0.2.0 listening on :${port}`);
+Deno.serve({ port }, async (request) => {
+  try { return withCors(await route(request, store)); }
+  catch (error) { console.error(error); return new Response("Internal Server Error", { status: 500 }); }
 });
-console.log(`Donagate listening on ${config.host}:${config.port}`);
