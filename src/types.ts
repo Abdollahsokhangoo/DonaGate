@@ -1,12 +1,15 @@
 export type Protocol = "vless" | "trojan";
+export type Network = "ws" | "tcp";
 export type SubscriptionFormat = "xray" | "singbox" | "clash";
 
 export interface AppConfig {
-  panelPath: string;
   panelPassword: string;
   publicHost: string;
   port: number;
   protocol: Protocol;
+  network: Network;
+  path: string;
+  sni: string;
   uuid: string;
   trojanPassword: string;
 }

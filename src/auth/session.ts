@@ -1,6 +1,6 @@
 import type { Session, Storage } from "../types.ts";
 
-const SESSION_TTL = 1000 * 60 * 60 * 12;
+const SESSION_TTL = 1000 * 60 * 60 * 12; // 12 hours
 const cookieName = "donagate_session";
 
 export function getSessionToken(request: Request): string | null {
@@ -14,11 +14,23 @@ export function getSessionToken(request: Request): string | null {
 
 export async function createSession(store: Storage): Promise<Response> {
   const token = crypto.randomUUID();
-  const session: Session = { token, createdAt: Date.now(), expiresAt: Date.now() + SESSION_TTL };
+  const session: Session = {
+    token,
+    createdAt: Date.now(),
+    expiresAt: Date.now() + SESSION_TTL,
+  };
   await store.set(`session:${token}`, session);
+
+  // Secure flag is set only when the request is over HTTPS (production)
+  const isSecure = false; // set true when behind HTTPS / Deno Deploy custom domain
+  const securePart = isSecure ? "; Secure" : "";
+
   return new Response(null, {
     status: 303,
-    headers: { "Location": "/panel", "Set-Cookie": `${cookieName}=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${SESSION_TTL / 1000}` },
+    headers: {
+      Location: "/panel",
+      "Set-Cookie": `${cookieName}=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${SESSION_TTL / 1000}${securePart}`,
+    },
   });
 }
 
@@ -33,5 +45,11 @@ export async function isAuthenticated(request: Request, store: Storage): Promise
 export async function logout(request: Request, store: Storage): Promise<Response> {
   const token = getSessionToken(request);
   if (token) await store.delete(`session:${token}`);
-  return new Response(null, { status: 303, headers: { "Location": "/", "Set-Cookie": `${cookieName}=; Path=/; HttpOnly; Max-Age=0` } });
+  return new Response(null, {
+    status: 303,
+    headers: {
+      Location: "/",
+      "Set-Cookie": `${cookieName}=; Path=/; HttpOnly; Max-Age=0`,
+    },
+  });
 }

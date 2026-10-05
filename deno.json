@@ -1,11 +1,14 @@
 {
   "tasks": {
-    "dev": "deno run --allow-net --allow-env src/main.ts",
-    "start": "deno run --allow-net --allow-env src/main.ts",
+    "dev": "deno run --allow-net --allow-env --allow-read src/main.ts",
+    "start": "deno run --allow-net --allow-env --allow-read src/main.ts",
     "test": "deno test -A",
     "check": "deno check src/main.ts tests/*.ts",
     "fmt": "deno fmt",
     "lint": "deno lint"
   },
-  "compilerOptions": {"strict": true, "noImplicitOverride": true}
+  "compilerOptions": {
+    "strict": true,
+    "noImplicitOverride": true
+  }
 }
